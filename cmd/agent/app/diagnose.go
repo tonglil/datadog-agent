@@ -42,7 +42,7 @@ func doDiagnose(cmd *cobra.Command, args []string) {
 	}
 
 	err := config.SetupLogger(
-		config.CoreLogger,
+		coreLogger,
 		config.Datadog.GetString("log_level"),
 		common.DefaultLogFile,
 		config.GetSyslogURI(),

@@ -20,19 +20,13 @@ import (
 	"github.com/cihub/seelog"
 )
 
-// LoggerName is a string prepended to all logs to indicate which component is logging
+// LoggerName specifies the name of an instantiated logger.
 type LoggerName string
 
-const logFileMaxSize = 10 * 1024 * 1024         // 10MB
-const logDateFormat = "2006-01-02 15:04:05 MST" // see time.Format for format syntax
-// CoreLogger is the name of the core agent logger
-const CoreLogger LoggerName = "CORE"
-
-// DCALogger is the name of the cluster agent logger
-const DCALogger LoggerName = "DCA"
-
-// DogstatsdLogger is the name of the dogstatsd logger
-const DogstatsdLogger LoggerName = "DSD"
+const (
+	logFileMaxSize = 10 * 1024 * 1024          // 10MB
+	logDateFormat  = "2006-01-02 15:04:05 MST" // see time.Format for format syntax
+)
 
 var syslogTLSConfig *tls.Config
 
@@ -59,12 +53,15 @@ func getSyslogTLSKeyPair() (*tls.Certificate, error) {
 	return syslogTLSKeyPair, nil
 }
 
-// SetupLogger sets up the default logger
-func SetupLogger(loggerName LoggerName, logLevel, logFile, uri string, rfc, logToConsole, jsonFormat bool) error {
+// SetupLogger sets up a logger with the specified logger name and log level
+// if a non empty logFile is provided, it will also log to the file
+// a non empty syslogURI will enable syslog, and format them following RFC 5424 if specified
+// you can also specify to log to the console and in JSON format
+func SetupLogger(loggerName LoggerName, logLevel, logFile, syslogURI string, syslogRFC, logToConsole, jsonFormat bool) error {
 	var syslog bool
 	var useTLS bool
 
-	if uri != "" { // non-blank uri enables syslog
+	if syslogURI != "" { // non-blank URI enables syslog
 		syslog = true
 
 		syslogTLSKeyPair, err := getSyslogTLSKeyPair()
@@ -103,11 +100,11 @@ func SetupLogger(loggerName LoggerName, logLevel, logFile, uri string, rfc, logT
 	}
 	if syslog {
 		var syslogTemplate string
-		if uri != "" {
+		if syslogURI != "" {
 			syslogTemplate = fmt.Sprintf(
 				`<custom name="syslog" formatid="syslog-%s" data-uri="%s" data-tls="%v" />`,
 				formatID,
-				uri,
+				syslogURI,
 				useTLS,
 			)
 		} else {
@@ -120,8 +117,8 @@ func SetupLogger(loggerName LoggerName, logLevel, logFile, uri string, rfc, logT
 	<formats>
 		<format id="json" format="{&quot;agent&quot;:&quot;%s&quot;,&quot;time&quot;:&quot;%%Date(%s)&quot;,&quot;level&quot;:&quot;%%LEVEL&quot;,&quot;file&quot;:&quot;%%ShortFilePath&quot;,&quot;line&quot;:&quot;%%Line&quot;,&quot;func&quot;:&quot;%%FuncShort&quot;,&quot;msg&quot;:&quot;%%Msg&quot;}%%n"/>
 		<format id="common" format="%%Date(%s) | %s | %%LEVEL | (%%ShortFilePath:%%Line in %%FuncShort) | %%Msg%%n"/>
-		<format id="syslog-json" format="%%CustomSyslogHeader(20,`+strconv.FormatBool(rfc)+`){&quot;agent&quot;:&quot;%s&quot;,&quot;level&quot;:&quot;%%LEVEL&quot;,&quot;relfile&quot;:&quot;%%ShortFilePath&quot;,&quot;line&quot;:&quot;%%Line&quot;,&quot;msg&quot;:&quot;%%Msg&quot;}%%n"/>
-		<format id="syslog-common" format="%%CustomSyslogHeader(20,`+strconv.FormatBool(rfc)+`) %s | %%LEVEL | (%%ShortFilePath:%%Line in %%FuncShort) | %%Msg%%n" />
+		<format id="syslog-json" format="%%CustomSyslogHeader(20,`+strconv.FormatBool(syslogRFC)+`){&quot;agent&quot;:&quot;%s&quot;,&quot;level&quot;:&quot;%%LEVEL&quot;,&quot;relfile&quot;:&quot;%%ShortFilePath&quot;,&quot;line&quot;:&quot;%%Line&quot;,&quot;msg&quot;:&quot;%%Msg&quot;}%%n"/>
+		<format id="syslog-common" format="%%CustomSyslogHeader(20,`+strconv.FormatBool(syslogRFC)+`) %s | %%LEVEL | (%%ShortFilePath:%%Line in %%FuncShort) | %%Msg%%n" />
 	</formats>
 </seelog>`,
 		strings.ToLower(string(loggerName)),

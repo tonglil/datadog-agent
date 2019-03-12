@@ -37,6 +37,9 @@ import (
 
 var stopCh chan struct{}
 
+// DCALogger is the name of the cluster agent logger
+const dcaLogger config.LoggerName = "DCA"
+
 // FIXME: move SetupAutoConfig and StartAutoConfig in their own package so we don't import cmd/agent
 var (
 	ClusterAgentCmd = &cobra.Command{
@@ -115,7 +118,7 @@ func start(cmd *cobra.Command, args []string) error {
 	defer mainCtxCancel() // Calling cancel twice is safe
 
 	err = config.SetupLogger(
-		config.DCALogger,
+		dcaLogger,
 		config.Datadog.GetString("log_level"),
 		logFile,
 		syslogURI,

@@ -9,6 +9,7 @@ all the components and providing the command line interface. */
 package app
 
 import (
+	"github.com/DataDog/datadog-agent/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -27,6 +28,9 @@ monitoring and performance data.`,
 	confFilePath string
 	flagNoColor  bool
 )
+
+// coreLogger is the name of the core agent logger
+const coreLogger config.LoggerName = "CORE"
 
 func init() {
 	AgentCmd.PersistentFlags().StringVarP(&confFilePath, "cfgpath", "c", "", "path to directory containing datadog.yaml")
