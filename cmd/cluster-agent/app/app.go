@@ -37,8 +37,8 @@ import (
 
 var stopCh chan struct{}
 
-// DCALogger is the name of the cluster agent logger
-const dcaLogger config.LoggerName = "DCA"
+// loggerName is the name of the cluster agent logger
+const loggerName config.LoggerName = "DCA"
 
 // FIXME: move SetupAutoConfig and StartAutoConfig in their own package so we don't import cmd/agent
 var (

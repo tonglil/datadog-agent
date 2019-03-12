@@ -70,8 +70,8 @@ extensions for special Datadog features.`,
 const (
 	// run the host metadata collector every 14400 seconds (4 hours)
 	hostMetadataCollectorInterval = 14400
-	// dogstatsdLogger is the name of the dogstatsd logger
-	dogstatsdLogger config.LoggerName = "DSD"
+	// loggerName is the name of the dogstatsd logger
+	loggerName config.LoggerName = "DSD"
 )
 
 func init() {
@@ -123,7 +123,7 @@ func start(cmd *cobra.Command, args []string) error {
 	}
 
 	err := config.SetupLogger(
-		dogstatsdLogger,
+		loggerName,
 		config.Datadog.GetString("log_level"),
 		logFile,
 		syslogURI,

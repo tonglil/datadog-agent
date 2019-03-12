@@ -29,8 +29,8 @@ monitoring and performance data.`,
 	flagNoColor  bool
 )
 
-// coreLogger is the name of the core agent logger
-const coreLogger config.LoggerName = "CORE"
+// loggerName is the name of the core agent logger
+const loggerName config.LoggerName = "CORE"
 
 func init() {
 	AgentCmd.PersistentFlags().StringVarP(&confFilePath, "cfgpath", "c", "", "path to directory containing datadog.yaml")
